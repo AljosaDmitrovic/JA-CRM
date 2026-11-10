@@ -1,0 +1,170 @@
+<div class="page">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Dashboard</h1>
+      <p class="subtitle">Where your job search stands today.</p>
+    </div>
+    <div class="actions">
+      @for (action of quick.paletteActions(); track action.id) {
+        <button type="button" class="btn" [class.btn-primary]="$last" (click)="action.run()">
+          <app-icon [name]="action.icon" />{{ action.label }}
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (dashboard.error(); as error) {
+    <app-empty-state icon="circle-alert" tone="danger" title="Could not load the dashboard" [message]="error">
+      <button type="button" class="btn" (click)="reload()">Try again</button>
+    </app-empty-state>
+  } @else if (dashboard.value(); as d) {
+    @if (isEmpty()) {
+      <app-empty-state icon="dashboard" title="Your job search starts here" message="Add the companies you are interested in, save vacancies with their full description, and track every application through the pipeline.">
+        @for (action of quick.paletteActions(); track action.id) {
+          <button type="button" class="btn" [class.btn-primary]="$first" (click)="action.run()"><app-icon [name]="action.icon" />{{ action.label }}</button>
+        }
+      </app-empty-state>
+    } @else {
+      <section class="tiles" aria-label="Key metrics">
+        @for (tile of tiles(); track tile.label) {
+          <a class="tile" [routerLink]="tile.link" [queryParams]="tile.query">
+            <span class="tile-label">{{ tile.label }}</span>
+            <span class="tile-value">{{ tile.value }}</span>
+            <span class="tile-hint" [class.warn]="tile.label === 'Awaiting response' && d.metrics.staleApplications > 0">
+              @if (tile.label === 'Awaiting response' && d.metrics.staleApplications > 0) {
+                <app-icon name="clock" [size]="12" />
+              }
+              {{ tile.hint }}
+            </span>
+          </a>
+        }
+      </section>
+
+      @if (pipeline(); as p) {
+        <section class="block" aria-labelledby="pipeline-title">
+          <header class="block-head">
+            <h2 id="pipeline-title">Pipeline</h2>
+            <span class="subtle">{{ p.total }} active {{ p.total === 1 ? 'application' : 'applications' }}, archived excluded</span>
+            <a class="btn btn-ghost btn-sm" routerLink="/applications" [queryParams]="{ view: 'board' }">Open board<app-icon name="arrow-right" [size]="14" /></a>
+          </header>
+          @if (p.total) {
+            <div class="bar" aria-hidden="true">
+              @for (ph of p.phases; track ph.phase) {
+                @if (ph.count) {
+                  <div class="segment" [style.flex-grow]="ph.count" [style.background]="ph.color" tabindex="-1">
+                    <span class="tooltip">{{ ph.label }} · {{ ph.count }} ({{ percent(ph.share) }})</span>
+                  </div>
+                }
+              }
+            </div>
+          }
+          <div class="phases">
+            @for (ph of p.phases; track ph.phase) {
+              <div class="phase">
+                <div class="phase-head">
+                  <span class="swatch" [style.background]="ph.color"></span>
+                  <span class="phase-name">{{ ph.label }}</span>
+                  <span class="phase-count">{{ ph.count }}</span>
+                </div>
+                <ul class="status-list">
+                  @for (s of ph.statuses; track s.status) {
+                    <li>
+                      <a [routerLink]="'/applications'" [queryParams]="{ view: 'table', status: s.status }" [class.zero]="!s.count">
+                        <span class="dot" [style.background]="s.color"></span>
+                        <span class="truncate">{{ s.label }}</span>
+                        <span class="n">{{ s.count }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <div class="columns">
+        <div class="col">
+          @if (d.stale.length) {
+            <section class="block" aria-labelledby="stale-title">
+              <header class="block-head">
+                <h2 id="stale-title">No reply for {{ d.staleThresholdDays }}+ days</h2>
+                <a class="btn btn-ghost btn-sm" routerLink="/applications" [queryParams]="{ view: 'table', stale: 'true' }">All stale</a>
+              </header>
+              <ul class="list">
+                @for (s of d.stale; track s.id) {
+                  <li>
+                    <a class="item-main" [routerLink]="['/applications', s.id]">
+                      <span class="item-title truncate">{{ s.title }}</span>
+                      <span class="item-sub">{{ s.companyName }} · applied, {{ s.daysSinceChange }} days without a status change</span>
+                    </a>
+                    <button type="button" class="btn btn-sm" (click)="markNoResponse(s.id)" title="Move to No Response">No response</button>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+
+          <section class="block" aria-labelledby="deadlines-title">
+            <header class="block-head"><h2 id="deadlines-title">Upcoming deadlines</h2><span class="subtle">next 30 days, not applied yet</span></header>
+            @if (d.upcomingDeadlines.length) {
+              <ul class="list">
+                @for (dl of d.upcomingDeadlines; track dl.vacancyId) {
+                  <li>
+                    <a class="item-main" [routerLink]="dl.applicationId ? ['/applications', dl.applicationId] : ['/vacancies', dl.vacancyId]">
+                      <span class="item-title truncate">{{ dl.title }}</span>
+                      <span class="item-sub">{{ dl.companyName }}{{ dl.applicationStatus ? ' · ' + meta.statusLabel(dl.applicationStatus) : ' · no application yet' }}</span>
+                    </a>
+                    <span class="due" [class.urgent]="dl.daysLeft <= 3" [title]="dl.deadline | appDate">{{ deadlineText(dl.daysLeft) }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="subtle empty">No deadlines in the next 30 days.</p>
+            }
+          </section>
+        </div>
+
+        <section class="block col" aria-labelledby="activity-title">
+          <header class="block-head"><h2 id="activity-title">Recent activity</h2></header>
+          @if (d.recentActivity.length) {
+            <ul class="list activity">
+              @for (a of d.recentActivity; track a.kind + a.applicationId + a.at) {
+                <li>
+                  <a class="item-main" [routerLink]="['/applications', a.applicationId]">
+                    <span class="item-title truncate">{{ a.title }} <span class="subtle">· {{ a.companyName }}</span></span>
+                    <span class="item-sub">
+                      @switch (a.kind) {
+                        @case ('Created') {
+                          Created as {{ meta.statusLabel(a.toStatus) }}
+                        }
+                        @case ('StatusChanged') {
+                          {{ meta.statusLabel(a.fromStatus) }} → {{ meta.statusLabel(a.toStatus) }}
+                        }
+                        @default {
+                          Details updated
+                        }
+                      }
+                    </span>
+                  </a>
+                  @if (a.toStatus && a.kind !== 'Updated') {
+                    <app-status-badge [status]="a.toStatus" class="hide-sm" />
+                  }
+                  <time class="when" [attr.datetime]="a.at">{{ a.at | timeAgo }}</time>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="subtle empty">Nothing yet.</p>
+          }
+        </section>
+      </div>
+    }
+  } @else {
+    <div class="tiles" aria-busy="true" aria-label="Loading dashboard">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="tile"><span class="skeleton" style="width: 60%"></span><span class="skeleton" style="height: 24px; width: 40%"></span></div>
+      }
+    </div>
+  }
+</div>

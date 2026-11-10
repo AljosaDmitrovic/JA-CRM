@@ -1,0 +1,131 @@
+<div class="page wide">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Applications</h1>
+      <p class="subtitle">{{ subtitle() }}</p>
+    </div>
+    <div class="actions">
+      <div class="segmented view-toggle" role="radiogroup" aria-label="View">
+        <button type="button" role="radio" [attr.aria-checked]="view() === 'board'" (click)="setView('board')">
+          <app-icon name="columns" [size]="14" />Board
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="view() === 'table'" (click)="setView('table')">
+          <app-icon name="rows" [size]="14" />Table
+        </button>
+      </div>
+      <button type="button" class="btn btn-primary" (click)="create()"><app-icon name="plus" />Create application<kbd>C</kbd></button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <label class="search">
+      <app-icon name="search" [size]="14" />
+      <span class="visually-hidden">Search applications</span>
+      <input
+        #search
+        class="input"
+        type="search"
+        placeholder="Search title, company, technology, location, notes…"
+        [value]="q.get('search')() ?? ''"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </label>
+    <button type="button" class="btn" [attr.aria-expanded]="showFilters()" aria-controls="filter-panel" (click)="showFilters.set(!showFilters())">
+      <app-icon name="filter" />Filters
+      @if (filters.chips().length) {
+        <span class="count">{{ filters.chips().length }}</span>
+      }
+    </button>
+    <button
+      type="button"
+      class="btn"
+      [attr.aria-pressed]="q.get('stale')() === 'true'"
+      [class.pressed]="q.get('stale')() === 'true'"
+      (click)="q.set({ stale: q.get('stale')() === 'true' ? null : 'true' })"
+      title="Applied with no status change for the stale threshold set in Settings"
+    >
+      <app-icon name="clock" />Stale only
+    </button>
+    <span class="spacer"></span>
+    @if (view() === 'table') {
+      <select class="select" aria-label="Archived" (change)="q.set({ archived: $any($event.target).value === 'Active' ? null : $any($event.target).value })">
+        @for (o of archivedOptions; track o.value) {
+          <option [value]="o.value" [selected]="archived() === o.value">{{ o.label }}</option>
+        }
+      </select>
+    } @else {
+      <span class="subtle hint-text">Archived applications are in the table view.</span>
+    }
+  </div>
+
+  @if (showFilters()) {
+    <app-filter-panel [selects]="selects()" [dateFields]="dateFields" />
+  }
+  @if (filters.chips().length) {
+    <div class="active-filters">
+      @for (chip of filters.chips(); track chip.key + (chip.value ?? '')) {
+        <button type="button" class="chip removable" (click)="filters.remove(chip)" [attr.aria-label]="'Remove filter ' + chip.label">
+          {{ chip.label }}<app-icon name="x" [size]="12" />
+        </button>
+      }
+      <button type="button" class="btn btn-ghost btn-sm" (click)="q.clear(['view'])">Clear all</button>
+    </div>
+  }
+
+  @if (view() === 'board') {
+    @if (board.error(); as error) {
+      <app-empty-state icon="circle-alert" tone="danger" title="Could not load applications" [message]="error">
+        <button type="button" class="btn" (click)="reload()">Try again</button>
+      </app-empty-state>
+    } @else if (board.value(); as items) {
+      @if (items.length || filtered()) {
+        @if (!items.length) {
+          <p class="subtle filtered-empty">No applications match these filters. <button type="button" class="btn btn-ghost btn-sm" (click)="q.clear(['view'])">Clear filters</button></p>
+        }
+        <app-application-board [items]="items" [pending]="pending()" (move)="move($event)" />
+      } @else {
+        <app-empty-state icon="kanban" title="No applications yet" message="Create one directly, or save a vacancy and convert it when you are ready to apply.">
+          <button type="button" class="btn btn-primary" (click)="create()"><app-icon name="plus" />Create application</button>
+        </app-empty-state>
+      }
+    } @else {
+      <div class="board-skeleton" aria-busy="true" aria-label="Loading applications">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="col"><span class="skeleton"></span><span class="skeleton tall"></span><span class="skeleton tall"></span></div>
+        }
+      </div>
+    }
+  } @else {
+    @if (table.error(); as error) {
+      <app-empty-state icon="circle-alert" tone="danger" title="Could not load applications" [message]="error">
+        <button type="button" class="btn" (click)="reload()">Try again</button>
+      </app-empty-state>
+    } @else if (table.value(); as page) {
+      @if (page.items.length) {
+        <app-applications-table
+          [page]="page"
+          [loading]="table.loading()"
+          [sort]="sort()"
+          [dir]="dir()"
+          (sortChange)="q.set($event)"
+          (pageChange)="q.set({ page: $event })"
+          (move)="move($event)"
+        />
+      } @else if (filtered()) {
+        <app-empty-state icon="search" title="No applications match" message="Try a different search or remove some filters.">
+          <button type="button" class="btn" (click)="q.clear(['view'])">Clear filters</button>
+        </app-empty-state>
+      } @else {
+        <app-empty-state icon="kanban" title="No applications yet" message="Create one directly, or save a vacancy and convert it when you are ready to apply.">
+          <button type="button" class="btn btn-primary" (click)="create()"><app-icon name="plus" />Create application</button>
+        </app-empty-state>
+      }
+    } @else {
+      <div class="skeleton-table" aria-busy="true" aria-label="Loading applications">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <span class="skeleton"></span>
+        }
+      </div>
+    }
+  }
+</div>

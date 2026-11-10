@@ -1,0 +1,78 @@
+.upper {
+  text-transform: uppercase;
+}
+
+.code {
+  max-width: 96px;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+
+  .spacer {
+    flex: 1;
+  }
+
+  &:has(> .btn-primary:only-child) {
+    justify-content: flex-end;
+  }
+}
+
+.form-section .alert {
+  margin-bottom: var(--s-4);
+}
+
+.rates td.nowrap {
+  padding-top: 13px;
+}
+
+.rates td {
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  vertical-align: top;
+
+  .error {
+    display: block;
+    margin-top: 2px;
+    color: var(--danger);
+    font-size: var(--text-xs);
+  }
+}
+
+.data-rows {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+
+.data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--border);
+
+  h3 {
+    margin-bottom: 2px;
+  }
+
+  p {
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.csv-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}

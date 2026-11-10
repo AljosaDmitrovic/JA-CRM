@@ -196,6 +196,10 @@
     font-size: var(--text-xs);
     color: var(--danger);
   }
+
+  > .segmented {
+    align-self: flex-start;
+  }
 }
 
 .form-grid {

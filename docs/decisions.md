@@ -19,6 +19,12 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
 - **D-05 · Angular CDK + hand-written SCSS design tokens; no component library.** — The spec forbids
   a default admin look. Restyling Material costs more than writing ~15 small components on top of
   CDK behaviour (drag-drop, dialog, menu, overlay, focus management).
+- **D-54 · Phase colours are a validated categorical palette:** blue (Applied), amber
+  (Interviewing), teal-green (Offer), and two neutral greys (Pipeline, Closed). Dark mode has its
+  own steps inside the dark lightness band. The greys deliberately read as "not in play", so phase
+  charts always carry direct labels, a legend with counts and a per-status breakdown. — Colour
+  is never the only carrier of meaning. Offer moved from green to teal-green so it stays distinct
+  from amber for protanopes and from the reserved success colour.
 - **D-06 · Icons from the `lucide` package (framework-agnostic data) through one `IconComponent`.**
   — `lucide-angular` declares peer support only up to Angular 21; the plain package has no peer
   dependencies.
@@ -97,6 +103,22 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
   created, applications edited (`UpdatedAt` not equal to creation or last status change).** — Built
   from timestamps as the spec requires; no audit log.
 - **D-33 · Upcoming deadlines include today and the next 30 days, non-archived vacancies only.**
+- **D-45 · Lists filter in SQL, then normalize salaries, compute staleness, sort and page in memory.**
+  — Salary sorting/filtering depends on settings and exchange rates, so it cannot be one SQL
+  expression. A personal job search has hundreds of records, not millions, so this stays fast and
+  keeps the rule in one place (`SalaryNormalizer`).
+- **D-46 · Application filters and search use the live vacancy and company (title, location,
+  arrangement, technologies). The snapshot is only for the "posting as I applied" section and the
+  posted salary (D-26).** — Edits to a vacancy (typo fixes, a newly known city) should be findable;
+  the snapshot exists to preserve history, not to drive navigation.
+- **D-47 · Global search (command palette) returns up to 6 hits per record type, archived included
+  but ranked after active ones and flagged.** — "Find anything quickly" includes old records.
+- **D-48 · An application created directly ("Create application") with a new vacancy gets
+  "date discovered" = today and only the fields the quick form captures (title, company, URL).**
+- **D-49 · The submission date cannot be in the future.** — It records something that happened.
+- **D-50 · Archiving/unarchiving an application counts as an edit (`UpdatedAt`).**
+- **D-51 · The vacancy → application conversion and the direct "Create application" share one code
+  path (`ApplicationService.CreateAsync`).** — The snapshot and initial-history rules exist once.
 
 ## Security
 
@@ -113,6 +135,9 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
 - **D-38 · Session lifetime 30 days, sliding.** — Personal device use (phone); logout is available.
 - **D-39 · Markdown is rendered with `marked` and sanitized with DOMPurify; raw HTML in Markdown is
   dropped by the sanitizer and Angular sanitizes `innerHTML` again.**
+- **D-52 · CSV exports are UTF-8 with a BOM (Excel), use display labels and ISO dates (timestamps
+  in UTC), and prefix text cells starting with `= + - @` with an apostrophe.** — Prevents CSV
+  formula injection from pasted job descriptions or company names.
 
 ## Operations
 
@@ -126,6 +151,10 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
 - **D-43 · A web app manifest (name, icons, theme colour) is included so the app can be added to the
   phone's home screen. No service worker / offline mode.** — Cheap, improves daily phone use;
   offline sync would be out of scope.
+- **D-53 · Import = replace everything, guarded three times: a confirmation dialog in the UI, a
+  required `confirm=replace-all` parameter on the API, and a full validation pass (references,
+  enums, uniqueness, schema version) before anything is deleted. A `VACUUM INTO` backup is written
+  to `backups/` first, and the replacement runs in one transaction. Ids are preserved.**
 - **D-44 · Local (non-Docker) data lives in `src/JaCrm.Api/App_Data/`; Docker uses `/data`.** — A
   folder named `data` would be the same directory as the `Data/` source folder on case-insensitive
   file systems (macOS), mixing the database into the sources and the `.gitignore`.

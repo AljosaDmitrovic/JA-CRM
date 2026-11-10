@@ -32,11 +32,13 @@
   --success: #15803d;
   --success-soft: #e8f6ed;
 
-  // Status phases
+  // Status phases. Validated as a categorical palette (dataviz validator) in both modes: every
+  // adjacent pair passes CVD separation and the normal-vision floor. Pipeline and Closed are
+  // deliberately neutral grays, so charts always label phases directly (decision D-54).
   --phase-pipeline: #8b8b94;
   --phase-applied: #2563eb;
   --phase-interviewing: #d97706;
-  --phase-offer: #16a34a;
+  --phase-offer: #0f9f6e;
   --phase-rejected: #dc2626;
   --phase-closed: #a1a1aa;
 
@@ -107,9 +109,9 @@
   --success-soft: #11291a;
 
   --phase-pipeline: #8b8b95;
-  --phase-applied: #60a5fa;
-  --phase-interviewing: #f59e0b;
-  --phase-offer: #4ade80;
+  --phase-applied: #4d8ef5;
+  --phase-interviewing: #c97c0a;
+  --phase-offer: #1fa37a;
   --phase-rejected: #f87171;
   --phase-closed: #6b6b75;
 

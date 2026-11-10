@@ -94,6 +94,7 @@
 
 // Tables: no outer box, hairline row separators, hover highlight, sticky header.
 .table-wrap {
+  position: relative;
   overflow-x: auto;
   margin: 0 calc(var(--s-2) * -1);
   padding: 0 var(--s-2);
@@ -534,4 +535,158 @@ table.table {
     opacity: 0;
     transform: translateY(4px) scale(0.985);
   }
+}
+
+// Lists: responsive columns, loading and filters --------------------------------------------------
+
+@media (max-width: 1100px) {
+  .hide-md {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+table.table.dim tbody {
+  opacity: 0.6;
+  transition: opacity var(--transition);
+}
+
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-4) 0;
+
+  .skeleton {
+    height: 16px;
+  }
+
+  .skeleton:nth-child(odd) {
+    width: 85%;
+  }
+}
+
+.board-skeleton {
+  display: flex;
+  gap: var(--s-3);
+  overflow: hidden;
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    flex: none;
+    width: 264px;
+    padding: var(--s-2);
+    border-radius: var(--radius-lg);
+    background: var(--bg-subtle);
+  }
+
+  .skeleton.tall {
+    height: 72px;
+  }
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+  margin: calc(var(--s-2) * -1) 0 var(--s-4);
+}
+
+.chip.removable {
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+
+  app-icon {
+    color: var(--text-subtle);
+  }
+
+  &:hover {
+    border-color: var(--border-strong);
+
+    app-icon {
+      color: var(--text);
+    }
+  }
+}
+
+.btn .count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.btn.pressed {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.hint-text {
+  font-size: var(--text-sm);
+}
+
+.filtered-empty {
+  margin-bottom: var(--s-3);
+}
+
+.form-actions .error-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.dialog .body.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.text {
+  color: var(--text);
+}
+
+.page-header h1 .tag-flag,
+.primary-cell + .tag-flag {
+  margin-left: var(--s-2);
+  vertical-align: middle;
+}
+
+// Drag and drop: the dragged card follows the pointer above everything else.
+.cdk-drag-preview {
+  box-shadow: var(--shadow-drag);
+  border-radius: var(--radius-lg);
+  cursor: grabbing;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+body.cdk-drag-dragging,
+.cdk-drop-list-dragging * {
+  cursor: grabbing;
+}
+
+// "Move to…" shows every status without scrolling where the screen allows.
+.menu.move-menu {
+  max-height: min(600px, calc(100vh - 32px));
 }

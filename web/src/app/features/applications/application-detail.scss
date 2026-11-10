@@ -1,0 +1,63 @@
+.status-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-bottom: var(--s-2);
+  padding: var(--s-4) var(--s-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+
+  .spacer {
+    flex: 1;
+  }
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--s-3) var(--s-4);
+  margin: 0;
+
+  dt {
+    margin-bottom: 2px;
+    color: var(--text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.small {
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+.pre {
+  white-space: pre-wrap;
+}
+
+.description {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px dashed var(--border);
+
+  &.clamped {
+    max-height: 220px;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  }
+}
+
+.toggle {
+  margin-top: var(--s-2);
+}

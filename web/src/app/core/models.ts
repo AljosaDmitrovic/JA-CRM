@@ -395,4 +395,12 @@ export interface ImportSummary {
   statusHistory: number;
   technologies: number;
   exchangeRates: number;
+  backupFile: string;
 }
+
+export interface CreatedId {
+  id: number;
+}
+
+/** Query parameters shared by list endpoints. Undefined/null/empty values are not sent. */
+export type QueryParams = Record<string, string | number | boolean | readonly string[] | null | undefined>;

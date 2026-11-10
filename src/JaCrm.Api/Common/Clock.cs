@@ -25,4 +25,11 @@ public sealed class Clock(TimeProvider timeProvider, IOptions<AppOptions> option
     public DateTime UtcNow => timeProvider.GetUtcNow().UtcDateTime;
 
     public DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(UtcNow, _zone));
+
+    /// <summary>Local midnight of <paramref name="date"/> in UTC, for filtering timestamps by date.</summary>
+    public DateTime StartOfDayUtc(DateOnly date) =>
+        TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified), _zone);
+
+    /// <summary>The owner's local calendar date of a UTC timestamp.</summary>
+    public DateOnly LocalDate(DateTime utc) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(utc, _zone));
 }

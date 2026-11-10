@@ -1,0 +1,179 @@
+<div class="page narrow">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Settings</h1>
+      <p class="subtitle">Appearance, compensation comparison, and your data.</p>
+    </div>
+  </header>
+
+  <section class="form-section">
+    <h2>Appearance</h2>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="theme-label">Theme</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="theme-label">
+          @for (o of meta.options('themes'); track o.value) {
+            <button type="button" role="radio" [attr.aria-checked]="store.settings()?.theme === o.value" (click)="setTheme(o.value)">
+              <app-icon [name]="themeIcons[o.value]" [size]="14" />{{ o.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <form class="form-section" [formGroup]="general" (ngSubmit)="saveGeneral()">
+    <h2>Comparison and display</h2>
+    <p class="section-hint">Salaries are compared as annual gross amounts in the base currency. Monthly amounts × 12; hourly amounts × working hours × 12. Taxes are never estimated.</p>
+    @if (generalError(); as message) {
+      <div class="alert danger" role="alert"><app-icon name="circle-alert" />{{ message }}</div>
+    }
+    <div class="form-grid">
+      <div class="field">
+        <label for="s-base">Base currency</label>
+        <input id="s-base" class="input upper" formControlName="baseCurrency" maxlength="3" list="s-currencies" autocomplete="off" />
+        <datalist id="s-currencies">
+          @for (c of meta.meta().commonCurrencies; track c) {
+            <option [value]="c"></option>
+          }
+        </datalist>
+        <span class="hint">Changing it converts the exchange rates; add a rate for the new currency first.</span>
+        @if (err(general, 'baseCurrency', 'Base currency'); as e) {
+          <span class="error">{{ e }}</span>
+        }
+      </div>
+      <div class="field">
+        <label for="s-hours">Working hours per month</label>
+        <input id="s-hours" class="input" type="number" min="1" max="744" step="any" formControlName="workingHoursPerMonth" />
+        <span class="hint">Used to convert hourly rates (default 168).</span>
+        @if (err(general, 'workingHoursPerMonth', 'Working hours'); as e) {
+          <span class="error">{{ e }}</span>
+        }
+      </div>
+      <div class="field">
+        <label for="s-stale">Stale after (days)</label>
+        <input id="s-stale" class="input" type="number" min="1" max="365" formControlName="staleThresholdDays" />
+        <span class="hint">Applied applications without a status change for this long are highlighted.</span>
+        @if (err(general, 'staleThresholdDays', 'Stale threshold'); as e) {
+          <span class="error">{{ e }}</span>
+        }
+      </div>
+      <div class="field">
+        <label for="s-date">Date format</label>
+        <select id="s-date" class="select" formControlName="dateFormat">
+          @for (o of meta.options('dateFormats'); track o.value) {
+            <option [ngValue]="o.value">{{ o.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="row-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="savingGeneral() || general.pristine">
+        @if (savingGeneral()) {
+          <app-icon name="loader" />
+        }
+        Save
+      </button>
+    </div>
+  </form>
+
+  <form class="form-section" [formGroup]="rates" (ngSubmit)="saveRates()">
+    <h2>Exchange rates</h2>
+    <p class="section-hint">
+      How much one unit of each currency is worth in {{ store.baseCurrency() }}. Maintained by hand; amounts in a currency without a rate are shown but cannot be compared.
+    </p>
+    @if (ratesError(); as message) {
+      <div class="alert danger" role="alert"><app-icon name="circle-alert" />{{ message }}</div>
+    }
+    <div class="table-wrap">
+      <table class="table rates" formArrayName="rates">
+        <thead>
+          <tr>
+            <th>Currency</th>
+            <th>1 unit = … {{ store.baseCurrency() }}</th>
+            <th class="hide-sm">Last updated</th>
+            <th><span class="visually-hidden">Remove</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rates.controls.rates.controls; track row; let i = $index) {
+            <tr [formGroupName]="i">
+              <td>
+                <input class="input upper code" formControlName="currency" maxlength="3" [attr.aria-label]="'Currency ' + (i + 1)" list="s-currencies" autocomplete="off" />
+                @if (err(rates, 'rates.' + i + '.currency', 'Currency'); as e) {
+                  <span class="error">{{ e }}</span>
+                }
+              </td>
+              <td>
+                <input class="input" type="number" min="0" step="any" formControlName="rateToBase" [attr.aria-label]="'Rate for ' + (row.controls.currency.value || 'currency ' + (i + 1))" />
+                @if (err(rates, 'rates.' + i + '.rateToBase', 'Rate'); as e) {
+                  <span class="error">{{ e }}</span>
+                }
+              </td>
+              <td class="hide-sm subtle nowrap">{{ (row.controls.updatedOn.value | appDate) || 'On save' }}</td>
+              <td class="num">
+                <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="removeRate(i)" [attr.aria-label]="'Remove ' + (row.controls.currency.value || 'rate')">
+                  <app-icon name="trash" [size]="14" />
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="subtle">No exchange rates yet. Only {{ store.baseCurrency() }} amounts can be compared.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="row-actions">
+      <button type="button" class="btn" (click)="addRate()"><app-icon name="plus" />Add currency</button>
+      <span class="spacer"></span>
+      <button type="submit" class="btn btn-primary" [disabled]="savingRates() || rates.pristine">
+        @if (savingRates()) {
+          <app-icon name="loader" />
+        }
+        Save rates
+      </button>
+    </div>
+  </form>
+
+  <section class="form-section">
+    <h2>Data</h2>
+    <p class="section-hint">Your data stays on your server. Export regularly; the JSON export restores everything.</p>
+    <div class="data-rows">
+      <div class="data-row">
+        <div>
+          <h3>Full export (JSON)</h3>
+          <p class="muted">Every record, the status history, settings and exchange rates. Use it to back up or move the app.</p>
+        </div>
+        <a class="btn" [href]="data.exportUrl()" download><app-icon name="download" />Export JSON</a>
+      </div>
+      <div class="data-row">
+        <div>
+          <h3>Spreadsheets (CSV)</h3>
+          <p class="muted">One file per record type, with readable labels.</p>
+        </div>
+        <div class="csv-buttons">
+          @for (c of csvEntities; track c.entity) {
+            <a class="btn btn-sm" [href]="data.csvUrl(c.entity)" download>{{ c.label }}</a>
+          }
+        </div>
+      </div>
+      <div class="data-row danger-zone">
+        <div>
+          <h3>Import and restore</h3>
+          <p class="muted">Replaces <strong>all</strong> current data with a JSON export. A backup of the current database is written first.</p>
+        </div>
+        <input #file type="file" accept="application/json,.json" class="visually-hidden" (change)="importFile(file)" tabindex="-1" aria-hidden="true" />
+        <button type="button" class="btn" (click)="chooseFile()" [disabled]="importing()">
+          @if (importing()) {
+            <app-icon name="loader" />
+          } @else {
+            <app-icon name="upload" />
+          }
+          Import JSON…
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

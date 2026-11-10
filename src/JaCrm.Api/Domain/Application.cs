@@ -74,6 +74,20 @@ public sealed class Application : IArchivable
         return application;
     }
 
+    /// <summary>Rebuilds an application exactly as it was exported (import/restore only). It bypasses
+    /// the creation rules on purpose: the status history is restored alongside it. The remaining
+    /// fields have public setters.</summary>
+    public static Application Restore(
+        int id, int vacancyId, ApplicationStatus status, DateTime createdAt, DateTime statusChangedAt, PostingSnapshot snapshot) => new()
+    {
+        Id = id,
+        VacancyId = vacancyId,
+        Status = status,
+        CreatedAt = createdAt,
+        StatusChangedAt = statusChangedAt,
+        PostingSnapshot = snapshot,
+    };
+
     /// <summary>Any status may move to any other status. The caller saves once, so the status and
     /// its history row are written in the same transaction.</summary>
     public ApplicationStatusHistory ChangeStatus(ApplicationStatus to, string? note, DateTime utcNow, DateOnly today)

@@ -1,0 +1,155 @@
+<div class="page narrow">
+  @if (application.error(); as error) {
+    <app-empty-state icon="circle-alert" tone="danger" title="Could not load the application" [message]="error">
+      <a class="btn" routerLink="/applications">Back to applications</a>
+    </app-empty-state>
+  } @else if (application.value(); as a) {
+    <header class="page-header">
+      <div class="title-block">
+        <div class="eyebrow">
+          <a routerLink="/applications">Applications</a><app-icon name="chevron-right" [size]="12" />
+          <a [routerLink]="['/companies', a.companyId]">{{ a.companyName }}</a>
+        </div>
+        <h1>
+          {{ a.vacancyTitle }}
+          @if (a.isArchived) {
+            <span class="tag-flag">Archived</span>
+          }
+        </h1>
+      </div>
+      <div class="actions">
+        <a class="btn" [routerLink]="['/applications', a.id, 'edit']"><app-icon name="pencil" />Edit<kbd>E</kbd></a>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="toggleArchive(a)" [attr.aria-label]="a.isArchived ? 'Unarchive' : 'Archive'" [title]="a.isArchived ? 'Unarchive' : 'Archive'">
+          <app-icon [name]="a.isArchived ? 'archive-restore' : 'archive'" />
+        </button>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="remove(a)" aria-label="Delete" title="Delete"><app-icon name="trash" /></button>
+      </div>
+    </header>
+
+    <!-- Status and key facts -->
+    <section class="status-card" aria-label="Status">
+      <div class="status-row">
+        <app-status-badge [status]="a.status" />
+        <span class="spacer"></span>
+        <app-move-menu [current]="a.status" [itemLabel]="a.vacancyTitle" [compact]="false" (move)="changeStatus(a, $event)" />
+        <button type="button" class="btn btn-sm" (click)="changeStatus(a)">Change status<kbd>S</kbd></button>
+      </div>
+      @if (a.isStale) {
+        <div class="alert" role="status">
+          <app-icon name="clock" />
+          <span>No status change since {{ a.statusChangedAt | appTimestamp }} ({{ a.statusChangedAt | timeAgo }}). If they never replied, move it to <strong>No Response</strong>.</span>
+        </div>
+      }
+      <dl class="facts">
+        <div><dt>Phase</dt><dd>{{ phaseLabel(a.phase) }}</dd></div>
+        <div><dt>Priority</dt><dd><app-priority [priority]="a.priority" [showLabel]="true" /></dd></div>
+        <div><dt>Submitted</dt><dd>{{ (a.submittedOn | appDate) || 'Not yet' }}</dd></div>
+        <div><dt>Status since</dt><dd [title]="a.statusChangedAt | appTimestamp: 'time'">{{ a.statusChangedAt | timeAgo }}</dd></div>
+        <div><dt>Created</dt><dd>{{ a.createdAt | appTimestamp }}</dd></div>
+        <div><dt>Last updated</dt><dd [title]="a.updatedAt | appTimestamp: 'time'">{{ a.updatedAt | timeAgo }}</dd></div>
+      </dl>
+    </section>
+
+    <!-- Compensation -->
+    <section class="section">
+      <header>
+        <h2>Compensation</h2>
+        <span class="subtle small">Compared as annual gross in {{ settings.baseCurrency() }}</span>
+      </header>
+      <dl class="props">
+        <dt>Expected</dt>
+        <dd><app-salary-view class="inline" [value]="a.expectedSalary" [normalized]="a.expectedNormalized" empty="Not set" /></dd>
+        <dt>Offered</dt>
+        <dd><app-salary-view class="inline" [value]="a.offeredSalary" [normalized]="a.offeredNormalized" empty="No offer yet" /></dd>
+        <dt>Posted</dt>
+        <dd><app-salary-view class="inline" [range]="a.snapshot.postedSalary" [normalized]="a.postedNormalized" empty="Not stated in the posting" /></dd>
+        @if (a.compensationNotes) {
+          <dt>Notes</dt>
+          <dd class="pre">{{ a.compensationNotes }}</dd>
+        }
+      </dl>
+    </section>
+
+    <!-- Posting snapshot -->
+    <section class="section">
+      <header>
+        <h2>Posting <span class="subtle small">as captured {{ a.snapshot.capturedAt | appTimestamp }}</span></h2>
+        <a class="btn btn-ghost btn-sm" [routerLink]="['/vacancies', a.vacancyId]">
+          Current vacancy{{ a.vacancyIsArchived ? ' (archived)' : '' }}<app-icon name="arrow-right" [size]="14" />
+        </a>
+      </header>
+      <dl class="props">
+        <dt>Title</dt>
+        <dd>{{ a.snapshot.jobTitle }}{{ a.snapshot.seniority ? ' · ' + meta.label('seniorities', a.snapshot.seniority) : '' }}</dd>
+        <dt>Company</dt>
+        <dd>{{ a.snapshot.companyName }}</dd>
+        <dt>Location</dt>
+        <dd>{{ join([snapshotPlace(), meta.label('workArrangements', a.snapshot.workArrangement), a.snapshot.remoteEligibility]) || '—' }}</dd>
+        <dt>Open to my location</dt>
+        <dd><span class="tag-flag" [class.warn]="a.snapshot.openToMyLocation === 'No'">{{ a.snapshot.openToMyLocation }}</span></dd>
+        <dt>Relocation</dt>
+        <dd>{{ a.snapshot.relocationSupport }}{{ a.snapshot.relocationNotes ? ' · ' + a.snapshot.relocationNotes : '' }}</dd>
+        <dt>Employment</dt>
+        <dd>{{ meta.label('employmentTypes', a.snapshot.employmentType) || '—' }}</dd>
+        <dt>Experience</dt>
+        <dd>{{ join([a.snapshot.requiredExperienceYears !== null ? a.snapshot.requiredExperienceYears + '+ years' : null, a.snapshot.requiredExperienceText]) || '—' }}</dd>
+        <dt>Technologies</dt>
+        <dd>
+          <div class="chips">
+            @for (t of a.snapshot.requiredTechnologies; track t) {
+              <span class="chip strong">{{ t }}</span>
+            }
+            @for (t of a.snapshot.preferredTechnologies; track t) {
+              <span class="chip" title="Preferred">{{ t }}</span>
+            }
+            @if (!a.snapshot.requiredTechnologies.length && !a.snapshot.preferredTechnologies.length) {
+              <span class="subtle">—</span>
+            }
+          </div>
+        </dd>
+        <dt>Original posting</dt>
+        <dd>@if (a.snapshot.url) { <a class="link" [href]="a.snapshot.url" target="_blank" rel="noopener noreferrer">{{ a.snapshot.url }}</a> } @else { <span class="subtle">—</span> }</dd>
+      </dl>
+      @if (a.snapshot.description) {
+        <div class="description" [class.clamped]="!descriptionOpen()">
+          <app-markdown [text]="a.snapshot.description" />
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm toggle" (click)="descriptionOpen.set(!descriptionOpen())" [attr.aria-expanded]="descriptionOpen()">
+          <app-icon [name]="descriptionOpen() ? 'chevron-down' : 'chevron-right'" [size]="14" />
+          {{ descriptionOpen() ? 'Show less' : 'Show full description' }}
+        </button>
+      }
+    </section>
+
+    <!-- Submission -->
+    <section class="section">
+      <header><h2>Submission</h2></header>
+      <dl class="props">
+        <dt>CV version</dt>
+        <dd>{{ a.cvVersion || '—' }}</dd>
+        <dt>Cover letter</dt>
+        <dd class="pre">{{ a.coverLetter || '—' }}</dd>
+        <dt>Reason for applying</dt>
+        <dd class="pre">{{ a.reasonForApplying || '—' }}</dd>
+      </dl>
+    </section>
+
+    <!-- Notes -->
+    <section class="section">
+      <header><h2>Notes</h2></header>
+      @if (a.notes) {
+        <app-markdown [text]="a.notes" />
+      } @else {
+        <p class="subtle">No notes yet. <a class="link" [routerLink]="['/applications', a.id, 'edit']">Add notes</a></p>
+      }
+    </section>
+
+    <!-- History -->
+    <section class="section">
+      <header><h2>Status history</h2></header>
+      <app-status-timeline [entries]="a.history" />
+    </section>
+  } @else {
+    <div class="skeleton-table" aria-busy="true"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+  }
+</div>

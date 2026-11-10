@@ -57,7 +57,7 @@ public static class DevSeeder
             "Local office with foreign clients. Salary in EUR, paid in RSD.");
         var brightline = NewCompany("Brightline Health Ltd", "https://brightline.example", "United Kingdom", "London", "Healthtech", CompanySize.From201To1000, 3, 25);
         var vela = NewCompany("Vela Payments GmbH", "https://vela-payments.example", "Germany", "Berlin", "Payments", CompanySize.From51To200, 4, 20);
-        var quarry = NewCompany("Quarry Labs", "https://quarrylabs.example", "Remote", "—", "Developer tools", CompanySize.From11To50, 5, 12);
+        var quarry = NewCompany("Quarry Labs", "https://quarrylabs.example", "Estonia", "Tallinn", "Developer tools", CompanySize.From11To50, 5, 12);
         var stari = NewCompany("Stari Grad Games", null, "Serbia", "Belgrade", "Gaming", CompanySize.From11To50, 2, 60);
         stari.Archive(DaysAgo(15));
 

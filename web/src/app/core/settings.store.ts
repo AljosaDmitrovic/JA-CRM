@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ExchangeRate, Settings } from './models';
+import { Settings } from './models';
 import { ThemeService } from './theme.service';
 
 export type SettingsUpdate = Omit<Settings, 'exchangeRates'>;
@@ -30,7 +30,8 @@ export class SettingsStore {
     return settings;
   }
 
-  async saveRates(rates: ExchangeRate[]): Promise<Settings> {
+  /** Replaces the list. Rates without a date get today's when new or changed (server side). */
+  async saveRates(rates: { currency: string; rateToBase: number; updatedOn?: string | null }[]): Promise<Settings> {
     const settings = await firstValueFrom(this.http.put<Settings>('/api/settings/exchange-rates', { rates }));
     this.apply(settings);
     return settings;

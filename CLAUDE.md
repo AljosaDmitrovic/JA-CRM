@@ -60,8 +60,31 @@ web/src/app/
   features/    dashboard, applications, companies, vacancies, settings, auth
 web/src/styles/  _tokens (light/dark), _base, _controls, _patterns
 tests/JaCrm.UnitTests        Domain rules
-tests/JaCrm.IntegrationTests WebApplicationFactory + temp SQLite file per factory (AppFactory)
+tests/JaCrm.IntegrationTests WebApplicationFactory + temp SQLite file per factory (AppFactory),
+                             TestApi helpers for arranging data through the real API
+e2e/                         Playwright (pinned to 1.63 = cached Chromium build 1243)
 ```
+
+## API map
+
+`/api/auth/{login,logout,session}` · `/api/meta` · `/api/settings` (+ `/exchange-rates`) ·
+`/api/companies` (+ `/options`, `/duplicates`, `/{id}/archive|unarchive`) ·
+`/api/vacancies` (+ `/{id}/convert`) · `/api/applications` (+ `/board`, `/{id}/status`) ·
+`/api/dashboard` · `/api/search?q=` · `/api/lookups` ·
+`/api/data/export`, `/api/data/export/{entity}.csv`, `POST /api/data/import?confirm=replace-all`.
+List endpoints take filters as query parameters (repeat a key for arrays: `?status=A&status=B`).
+
+## Frontend patterns
+
+- List pages keep search, filters, sort and page in the URL (`core/query-state.ts`), and load through
+  a `Loadable` (`core/loadable.ts`) inside an `effect`.
+- Forms: typed reactive forms. `applyServerErrors(form, error, aliases)` maps 400 field keys onto
+  controls, and `controlError()` builds the message.
+- Shared filters for vacancies and applications: `shared/filter-panel.ts` (+ `activeFilters()` chips).
+- A native `<select>` whose options come from `@for` must mark `[selected]` on the options instead of
+  binding `[value]` on the select (the value would be applied before the options exist).
+- Absolutely positioned content inside a horizontal scroller needs a positioned scroller (see
+  `.board`), or it widens the page.
 
 ## Conventions that matter
 
@@ -94,7 +117,7 @@ tests/JaCrm.IntegrationTests WebApplicationFactory + temp SQLite file per factor
 |---|---|
 | 1 Plan | Done (`docs/architecture.md`, `docs/decisions.md`) |
 | 2 Foundation | Done: solution, schema + migration, auth (cookie, PBKDF2, rate limit, CSRF), design system, shell, command palette, Docker files, test projects |
-| 3 Core features | In progress |
-| 4 UX polish | Not started |
+| 3 Core features | Done: companies, vacancies, applications (board + table, status history), settings + rates, dashboard, search/filters, export/import (JSON + CSV), with unit + integration tests |
+| 4 UX polish | In progress |
 | 5 QA (incl. Playwright, Docker persistence) | Not started |
 | 6 Report + README | Not started |

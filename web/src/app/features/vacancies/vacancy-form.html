@@ -1,0 +1,218 @@
+<div class="page narrow">
+  <header class="page-header">
+    <div class="title-block">
+      <div class="eyebrow">
+        <a routerLink="/vacancies">Vacancies</a><app-icon name="chevron-right" [size]="12" />
+      </div>
+      <h1>{{ editing ? 'Edit vacancy' : 'New vacancy' }}</h1>
+      <p class="subtitle">Paste the posting as it is: Markdown keeps its structure. Only the title and company are required.</p>
+    </div>
+  </header>
+
+  @if (loadError(); as error) {
+    <app-empty-state icon="circle-alert" tone="danger" title="Could not load the vacancy" [message]="error">
+      <a class="btn" routerLink="/vacancies">Back to vacancies</a>
+    </app-empty-state>
+  } @else if (ready()) {
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <section class="form-section">
+        <h2>Posting</h2>
+        <div class="form-grid">
+          <div class="field span-2">
+            <label for="v-title" class="required">Job title</label>
+            <input id="v-title" class="input" formControlName="title" autocomplete="off" autofocus />
+            @if (err('title', 'Job title'); as e) {
+              <span class="error">{{ e }}</span>
+            }
+          </div>
+          <div class="field span-2">
+            <label for="v-company" class="required">Company</label>
+            <app-company-field [form]="form.controls.company" inputId="v-company" />
+          </div>
+          <div class="field">
+            <label for="v-seniority">Seniority</label>
+            <select id="v-seniority" class="select" formControlName="seniority">
+              <option [ngValue]="null">—</option>
+              @for (o of meta.options('seniorities'); track o.value) {
+                <option [ngValue]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="v-employment">Employment type</label>
+            <select id="v-employment" class="select" formControlName="employmentType">
+              <option [ngValue]="null">—</option>
+              @for (o of meta.options('employmentTypes'); track o.value) {
+                <option [ngValue]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field span-2">
+            <label for="v-url">Original posting URL</label>
+            <input id="v-url" class="input" formControlName="url" placeholder="https://…" autocomplete="off" />
+            @if (err('url', 'URL'); as e) {
+              <span class="error">{{ e }}</span>
+            }
+          </div>
+          <div class="field">
+            <label for="v-source">Source</label>
+            <select id="v-source" class="select" formControlName="source">
+              <option [ngValue]="null">—</option>
+              @for (o of meta.options('sources'); track o.value) {
+                <option [ngValue]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="v-source-detail">Source detail</label>
+            <input id="v-source-detail" class="input" formControlName="sourceDetail" placeholder="e.g. referred by Ana" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="v-discovered">Date discovered</label>
+            <input id="v-discovered" class="input" type="date" formControlName="dateDiscovered" />
+          </div>
+          <div class="field">
+            <label for="v-deadline">Application deadline</label>
+            <input id="v-deadline" class="input" type="date" formControlName="applicationDeadline" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>Location and remote work</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label for="v-country">Country</label>
+            <input id="v-country" class="input" formControlName="country" list="v-countries" autocomplete="off" />
+            <datalist id="v-countries">
+              @for (c of lookups()?.countries ?? []; track c) {
+                <option [value]="c"></option>
+              }
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="v-city">City</label>
+            <input id="v-city" class="input" formControlName="city" list="v-cities" autocomplete="off" />
+            <datalist id="v-cities">
+              @for (c of lookups()?.cities ?? []; track c) {
+                <option [value]="c"></option>
+              }
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="v-arrangement">Work arrangement</label>
+            <select id="v-arrangement" class="select" formControlName="workArrangement">
+              <option [ngValue]="null">—</option>
+              @for (o of meta.options('workArrangements'); track o.value) {
+                <option [ngValue]="o.value">{{ o.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="v-eligibility">Remote eligibility</label>
+            <input id="v-eligibility" class="input" formControlName="remoteEligibility" placeholder="EU only, Worldwide, CET ±2h…" autocomplete="off" />
+          </div>
+          <div class="field">
+            <span class="label" id="v-open-label">Open to my location</span>
+            <div class="segmented tri" role="radiogroup" aria-labelledby="v-open-label">
+              @for (o of meta.options('triStates'); track o.value) {
+                <button type="button" role="radio" [attr.aria-checked]="form.controls.openToMyLocation.value === o.value" (click)="form.controls.openToMyLocation.setValue(o.value)">
+                  {{ o.label }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="field">
+            <span class="label" id="v-relocation-label">Relocation support</span>
+            <div class="segmented tri" role="radiogroup" aria-labelledby="v-relocation-label">
+              @for (o of meta.options('triStates'); track o.value) {
+                <button type="button" role="radio" [attr.aria-checked]="form.controls.relocationSupport.value === o.value" (click)="form.controls.relocationSupport.setValue(o.value)">
+                  {{ o.label }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="field span-2">
+            <label for="v-relocation-notes">Relocation notes</label>
+            <input id="v-relocation-notes" class="input" formControlName="relocationNotes" placeholder="Visa sponsorship, relocation package…" autocomplete="off" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>Requirements</h2>
+        <div class="form-grid">
+          <div class="field span-2">
+            <label for="v-required">Required technologies</label>
+            <app-tag-input inputId="v-required" formControlName="requiredTechnologies" [suggestions]="lookups()?.technologies ?? []" placeholder="C#, PostgreSQL… (Enter or comma)" />
+          </div>
+          <div class="field span-2">
+            <label for="v-preferred">Preferred technologies</label>
+            <app-tag-input inputId="v-preferred" formControlName="preferredTechnologies" [suggestions]="lookups()?.technologies ?? []" placeholder="Nice to have" />
+            <span class="hint">A technology listed as required is not repeated here.</span>
+          </div>
+          <div class="field">
+            <label for="v-years">Years of experience</label>
+            <input id="v-years" class="input" type="number" min="0" max="60" formControlName="requiredExperienceYears" />
+            @if (err('requiredExperienceYears', 'Years of experience'); as e) {
+              <span class="error">{{ e }}</span>
+            }
+          </div>
+          <div class="field">
+            <label for="v-experience">Experience details</label>
+            <input id="v-experience" class="input" formControlName="requiredExperienceText" placeholder="e.g. 5+ years backend, 2 with Azure" autocomplete="off" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>Posted salary</h2>
+        <p class="section-hint">Leave empty if the posting has no salary. Either bound may be empty ("from 60k", "up to 80k").</p>
+        <app-salary-fields [group]="form.controls.postedSalary" [range]="true" label="Posted salary" idPrefix="v-salary" />
+      </section>
+
+      <section class="form-section">
+        <div class="description-head">
+          <h2><label for="v-description">Job description</label></h2>
+          <div class="segmented" role="group" aria-label="Description view">
+            <button type="button" [attr.aria-pressed]="!preview()" (click)="preview.set(false)">Write</button>
+            <button type="button" [attr.aria-pressed]="preview()" (click)="preview.set(true)">Preview</button>
+          </div>
+        </div>
+        <p class="section-hint">Markdown. Pasted text keeps its line breaks.</p>
+        @if (preview()) {
+          <div class="preview">
+            @if (form.controls.description.value) {
+              <app-markdown [text]="form.controls.description.value" />
+            } @else {
+              <p class="subtle">Nothing to preview.</p>
+            }
+          </div>
+        } @else {
+          <textarea id="v-description" class="textarea" formControlName="description" rows="14"></textarea>
+        }
+      </section>
+
+      <section class="form-section">
+        <h2><label for="v-notes">Notes</label></h2>
+        <textarea id="v-notes" class="textarea" formControlName="notes" rows="4" placeholder="Your own notes (Markdown)"></textarea>
+      </section>
+
+      <div class="form-actions sticky-actions">
+        @if (banner(); as message) {
+          <span class="error-banner" role="alert"><app-icon name="circle-alert" />{{ message }}</span>
+        }
+        <button type="button" class="btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <app-icon name="loader" />
+          }
+          {{ editing ? 'Save changes' : 'Save vacancy' }}
+          <kbd>{{ saveKeys }}</kbd>
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="skeleton-table" aria-busy="true"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+  }
+</div>
