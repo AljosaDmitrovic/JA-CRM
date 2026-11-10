@@ -37,7 +37,7 @@ ASP.NET Core (JaCrm.Api)
    └── /*            Angular SPA (static files + index.html fallback)
    │
    ▼
-SQLite file on a mounted volume (/data/jacrm.db)
+SQLite file on a mounted volume (/data/jacrm.db; App_Data/ when run without Docker)
 ```
 
 ### Backend layout (`src/JaCrm.Api`)
@@ -49,9 +49,10 @@ Domain/        Entities, enums, value objects and pure business rules (no ASP.NE
                - CompanyMatching       name/domain normalization for duplicate warnings
                - DashboardCalculator   metric definitions over plain records
 Data/          AppDbContext, entity configurations, migrations, dev seeding
-Features/      One folder per module: Endpoints (HTTP mapping) + Service (use cases) + Contracts (DTOs)
-               Auth, Meta, Companies, Vacancies, Applications, Technologies, Dashboard,
-               Search, Settings, DataTransfer
+Features/      One folder per module; usually one file holding the request/response records, the
+               <Module>Service (use cases) and <Module>Endpoints (HTTP mapping): Auth, Meta,
+               Companies, Vacancies, Applications, Technologies, Dashboard, Search (+ lookups),
+               Settings, DataTransfer (JSON export/import, CSV)
 Common/        Error handling (ProblemDetails), validation helpers, paging, clock
 Cli/           `hash-password` and `seed` commands (explicit, never automatic)
 ```
@@ -132,7 +133,7 @@ strings so the database stays readable and reordering an enum cannot corrupt dat
 | `/applications/:id/edit` | Edit the pursuit fields |
 | `/companies`, `/companies/:id` | Company table; detail with vacancies, applications, cross-application status history, notes |
 | `/vacancies`, `/vacancies/new`, `/vacancies/:id`, `/vacancies/:id/edit` | Vacancy table with filters; full form for pasting postings; detail with "Convert to application" |
-| `/settings` | Theme, base currency, exchange rates, working hours, stale threshold, date format, export/import |
+| `/settings` | Theme, base currency, exchange rates, working hours, stale threshold, date format, export/import (`/api/data/*`) |
 | Overlays | Command palette (`Ctrl/⌘ K`), shortcuts help (`?`), create dialogs, confirm dialogs |
 
 ## 5. Milestones
@@ -145,3 +146,5 @@ strings so the database stays readable and reordering an enum cannot corrupt dat
 | 4 | UX polish: forms, tables, Kanban keyboard flow, palette and shortcuts, responsive, states | `Phase 4: UX refinement` |
 | 5 | All tests green incl. Playwright E2E; persistence across restarts/rebuilds; export → import round-trip | `Phase 5: quality assurance` |
 | 6 | `docs/REPORT.md`, README, AI-agent docs | `Phase 6: final report` |
+
+All six milestones are complete; see [`REPORT.md`](REPORT.md) for what was verified and what was not.
