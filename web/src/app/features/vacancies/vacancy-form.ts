@@ -11,6 +11,7 @@ import { problemMessage } from '../../core/problem';
 import { SettingsStore } from '../../core/settings.store';
 import { ShortcutsService, isMac } from '../../core/shortcuts.service';
 import { ToastService } from '../../core/toast.service';
+import { HasUnsavedChanges, warnOnUnload } from '../../core/unsaved-changes';
 import { CompanyField, companyFieldForm, companyFieldValue } from '../../shared/company-field';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
@@ -52,7 +53,7 @@ import { TagInput } from '../../shared/tag-input';
     }
   `,
 })
-export class VacancyFormPage implements OnInit {
+export class VacancyFormPage implements OnInit, HasUnsavedChanges {
   /** Route param on /vacancies/:id/edit; absent on /vacancies/new. */
   readonly id = input(undefined, { transform: (v: unknown) => (v === undefined ? undefined : numberAttribute(v)) });
 
@@ -99,7 +100,10 @@ export class VacancyFormPage implements OnInit {
     notes: new FormControl('', { nonNullable: true }),
   });
 
+  private saved = false;
+
   constructor() {
+    warnOnUnload(() => this.hasUnsavedChanges());
     inject(ShortcutsService).register([
       { keys: 'mod+Enter', description: 'Save vacancy', group: 'Vacancy form', run: () => void this.save(), allowInInputs: true },
     ]);
@@ -107,6 +111,10 @@ export class VacancyFormPage implements OnInit {
 
   protected get editing(): boolean {
     return this.id() !== undefined;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.saved;
   }
 
   async ngOnInit(): Promise<void> {
@@ -174,6 +182,7 @@ export class VacancyFormPage implements OnInit {
     try {
       const id = this.id();
       const saved = id === undefined ? await this.api.create(request) : await this.api.update(id, request);
+      this.saved = true;
       this.toasts.success(id === undefined ? 'Vacancy saved.' : 'Changes saved.');
       void this.router.navigate(['/vacancies', saved.id]);
     } catch (error) {

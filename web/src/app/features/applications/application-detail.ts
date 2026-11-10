@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, numberAttribute, signal } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { ApplicationsApi } from '../../core/api/applications.api';
 import { Dialogs } from '../../core/dialogs';
@@ -37,6 +38,7 @@ export class ApplicationDetailPage {
   private readonly confirm = inject(Confirm);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly title = inject(Title);
   protected readonly application = new Loadable<ApplicationDetail>();
   protected readonly descriptionOpen = signal(false);
 
@@ -49,7 +51,7 @@ export class ApplicationDetailPage {
     effect(() => {
       const id = this.id();
       this.descriptionOpen.set(false);
-      void this.application.load(() => this.api.get(id));
+      void this.application.load(() => this.api.get(id)).then((a) => a && this.title.setTitle(`${a.vacancyTitle} · ${a.companyName} · Job Search`));
     });
     inject(ShortcutsService).register([
       { keys: 'e', description: 'Edit application', group: 'Application', run: () => void this.router.navigate(['/applications', this.id(), 'edit']) },

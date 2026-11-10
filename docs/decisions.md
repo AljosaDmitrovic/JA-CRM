@@ -158,3 +158,16 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
 - **D-44 · Local (non-Docker) data lives in `src/JaCrm.Api/App_Data/`; Docker uses `/data`.** — A
   folder named `data` would be the same directory as the `Data/` source folder on case-insensitive
   file systems (macOS), mixing the database into the sources and the `.gitignore`.
+
+## UX
+
+- **D-55 · Undo after a board move is a second status change, not a deletion of the first.** —
+  History stays auditable (spec: every move is recorded); the submission date set by the first
+  move is not cleared (it is never cleared automatically).
+- **D-56 · Leaving a dirty form asks first:** route guard on the vacancy form and the application
+  edit page, `beforeunload` for reloads and closed tabs, and Escape / backdrop clicks on form
+  dialogs. — Losing a pasted job description is the most likely destructive accident.
+- **D-57 · Touch drag starts after a 250 ms press; keyboard hints are hidden on touch screens.**
+  — A swipe must scroll the board sideways rather than pick up a card; key hints are noise on a phone.
+- **D-58 · The board always shows active applications; the archived filter and paging live in the
+  table view.** — The spec hides archived applications from the board; the table reaches them.

@@ -8,6 +8,7 @@ import { applyServerErrors, clean, controlError, urlValidator } from '../../core
 import { MetaService } from '../../core/meta.service';
 import { CompanyDetail, CompanySize, Lookups } from '../../core/models';
 import { ToastService } from '../../core/toast.service';
+import { guardDialogClose } from '../../core/unsaved-changes';
 import { DuplicateWarning } from '../../shared/duplicate-warning';
 import { Icon } from '../../shared/icon';
 import { RatingInput } from '../../shared/rating';
@@ -146,6 +147,10 @@ export class CompanyFormDialog implements OnInit {
     rating: new FormControl<number | null>(this.data?.company?.rating ?? null),
     notes: new FormControl(this.data?.company?.notes ?? '', { nonNullable: true }),
   });
+
+  constructor() {
+    guardDialogClose(() => this.form.dirty && !this.saving());
+  }
 
   protected readonly name = toSignal(this.form.controls.name.valueChanges, { initialValue: this.form.controls.name.value });
   protected readonly website = toSignal(this.form.controls.website.valueChanges, { initialValue: this.form.controls.website.value });

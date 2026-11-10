@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, numberAttribute } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { CompaniesApi } from '../../core/api/companies.api';
 import { Dialogs } from '../../core/dialogs';
@@ -163,12 +164,13 @@ export class CompanyDetailPage {
   private readonly confirm = inject(Confirm);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly title = inject(Title);
   protected readonly company = new Loadable<CompanyDetail>();
 
   constructor() {
     effect(() => {
       const id = this.id();
-      void this.company.load(() => this.api.get(id));
+      void this.company.load(() => this.api.get(id)).then((c) => c && this.title.setTitle(`${c.name} · Job Search`));
     });
     inject(ShortcutsService).register([
       { keys: 'e', description: 'Edit company', group: 'Company', run: () => this.company.value() && this.edit(this.company.value()!) },

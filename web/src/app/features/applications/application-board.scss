@@ -13,6 +13,8 @@
   padding: 0 var(--s-10) var(--s-4);
   overflow-x: auto;
   scroll-snap-type: x proximity;
+  // Snap columns to the content edge, not the scroller edge.
+  scroll-padding-inline: var(--s-10);
   overscroll-behavior-x: contain;
 }
 
@@ -152,6 +154,7 @@ app-application-card.cdk-drag-animating {
   .board {
     padding: 0 var(--s-4) var(--s-4);
     gap: var(--s-4);
+    scroll-padding-inline: var(--s-4);
   }
 
   .column {

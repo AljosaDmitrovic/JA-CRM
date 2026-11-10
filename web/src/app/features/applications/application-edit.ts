@@ -10,6 +10,7 @@ import { problemMessage } from '../../core/problem';
 import { SettingsStore } from '../../core/settings.store';
 import { ShortcutsService, isMac } from '../../core/shortcuts.service';
 import { ToastService } from '../../core/toast.service';
+import { HasUnsavedChanges, warnOnUnload } from '../../core/unsaved-changes';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
 import { SalaryFields, salaryValueForm, toSalaryValue } from '../../shared/salary-fields';
@@ -126,7 +127,7 @@ import { StatusBadge } from '../../shared/status-badge';
     </div>
   `,
 })
-export class ApplicationEditPage implements OnInit {
+export class ApplicationEditPage implements OnInit, HasUnsavedChanges {
   readonly id = input.required({ transform: numberAttribute });
   protected readonly meta = inject(MetaService);
   private readonly api = inject(ApplicationsApi);
@@ -153,10 +154,17 @@ export class ApplicationEditPage implements OnInit {
     notes: new FormControl('', { nonNullable: true }),
   });
 
+  private saved = false;
+
   constructor() {
+    warnOnUnload(() => this.hasUnsavedChanges());
     inject(ShortcutsService).register([
       { keys: 'mod+Enter', description: 'Save application', group: 'Application form', run: () => void this.save(), allowInInputs: true },
     ]);
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.saved;
   }
 
   async ngOnInit(): Promise<void> {
@@ -204,6 +212,7 @@ export class ApplicationEditPage implements OnInit {
         coverLetter: clean(v.coverLetter),
         notes: clean(v.notes),
       });
+      this.saved = true;
       this.toasts.success('Application saved.');
       void this.router.navigate(['/applications', this.id()]);
     } catch (error) {

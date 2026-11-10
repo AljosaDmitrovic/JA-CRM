@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, numberAttribute } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { VacanciesApi } from '../../core/api/vacancies.api';
 import { Dialogs } from '../../core/dialogs';
@@ -134,12 +135,13 @@ export class VacancyDetailPage {
   private readonly confirm = inject(Confirm);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly title = inject(Title);
   protected readonly vacancy = new Loadable<VacancyDetail>();
 
   constructor() {
     effect(() => {
       const id = this.id();
-      void this.vacancy.load(() => this.api.get(id));
+      void this.vacancy.load(() => this.api.get(id)).then((v) => v && this.title.setTitle(`${v.title} · ${v.companyName} · Job Search`));
     });
     inject(ShortcutsService).register([
       { keys: 'e', description: 'Edit vacancy', group: 'Vacancy', run: () => void this.router.navigate(['/vacancies', this.id(), 'edit']) },

@@ -5,6 +5,7 @@ import { ApplicationsApi } from '../../core/api/applications.api';
 import { MetaService } from '../../core/meta.service';
 import { ApplicationListItem, ApplicationStatus } from '../../core/models';
 import { problemMessage } from '../../core/problem';
+import { guardDialogClose } from '../../core/unsaved-changes';
 import { Icon } from '../../shared/icon';
 import { StatusSelect } from '../../shared/status-select';
 
@@ -65,6 +66,10 @@ export class StatusChangeDialog {
     status: new FormControl<ApplicationStatus>(this.data.target ?? this.data.current, { nonNullable: true }),
     note: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(2000)] }),
   });
+
+  constructor() {
+    guardDialogClose(() => this.form.dirty && !this.saving());
+  }
 
   protected async save(): Promise<void> {
     const { status, note } = this.form.getRawValue();

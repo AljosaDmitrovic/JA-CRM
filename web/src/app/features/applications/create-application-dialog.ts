@@ -7,6 +7,7 @@ import { applyServerErrors, clean, controlError, urlValidator } from '../../core
 import { MetaService } from '../../core/meta.service';
 import { ApplicationStatus, Priority, VacancyListItem } from '../../core/models';
 import { ToastService } from '../../core/toast.service';
+import { guardDialogClose } from '../../core/unsaved-changes';
 import { CompanyField, companyFieldForm, companyFieldValue } from '../../shared/company-field';
 import { Icon } from '../../shared/icon';
 import { StatusSelect } from '../../shared/status-select';
@@ -126,6 +127,10 @@ export class CreateApplicationDialog implements OnInit {
     status: new FormControl<ApplicationStatus>('Interested', { nonNullable: true }),
     priority: new FormControl<Priority>('Medium', { nonNullable: true }),
   });
+
+  constructor() {
+    guardDialogClose(() => this.form.dirty && !this.saving());
+  }
 
   async ngOnInit(): Promise<void> {
     try {

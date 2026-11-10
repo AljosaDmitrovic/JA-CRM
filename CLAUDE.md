@@ -118,6 +118,6 @@ List endpoints take filters as query parameters (repeat a key for arrays: `?stat
 | 1 Plan | Done (`docs/architecture.md`, `docs/decisions.md`) |
 | 2 Foundation | Done: solution, schema + migration, auth (cookie, PBKDF2, rate limit, CSRF), design system, shell, command palette, Docker files, test projects |
 | 3 Core features | Done: companies, vacancies, applications (board + table, status history), settings + rates, dashboard, search/filters, export/import (JSON + CSV), with unit + integration tests |
-| 4 UX polish | In progress |
-| 5 QA (incl. Playwright, Docker persistence) | Not started |
+| 4 UX polish | Done: responsive board/tables, unsaved-change guards, undo on moves, record titles, touch behaviour |
+| 5 QA (incl. Playwright, Docker persistence) | In progress |
 | 6 Report + README | Not started |
