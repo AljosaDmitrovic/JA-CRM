@@ -131,5 +131,5 @@ List endpoints take filters as query parameters (repeat a key for arrays: `?stat
 | 2 Foundation | Done: solution, schema + migration, auth (cookie, PBKDF2, rate limit, CSRF), design system, shell, command palette, Docker files, test projects |
 | 3 Core features | Done: companies, vacancies, applications (board + table, status history), settings + rates, dashboard, search/filters, export/import (JSON + CSV), with unit + integration tests |
 | 4 UX polish | Done: responsive board/tables, unsaved-change guards, undo on moves, record titles, touch behaviour |
-| 5 QA (incl. Playwright, Docker persistence) | Done except the Docker image check: 177 backend + 3 E2E flows green, restart persistence and SQLite integrity tested. Docker build not run (Colima VM disk full; owner decides) |
+| 5 QA (incl. Playwright, Docker persistence) | Done: 177 backend + 3 E2E flows green, Docker image built and verified (health, persistence across restart/recreate) |
 | 6 Report + README | Done: `README.md`, `docs/REPORT.md`, `docs/deployment.md` |

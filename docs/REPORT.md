@@ -34,10 +34,8 @@ phases, with one commit per phase. Every interpretation of the spec is logged in
   export → import through the UI with an identical re-export.
 - **Manual checks** with screenshots at 1440 px and 390 px in light and dark: no horizontal page
   scroll, no console errors, overlays (palette, menu, dialogs, shortcuts) keyboard-operable.
-- **Not verified: building and running the Docker image.** The local Docker VM (Colima, 10 GiB
-  disk) is full of other projects' images, so `docker build` failed for lack of space. The
-  Dockerfile and Compose files were written but not run end to end. The persistence they rely
-  on (one data folder on a volume) is covered by the restart test.
+- **Docker:** the image builds; Compose starts it healthy (HEALTHCHECK); login, API and SPA deep links
+  work; data and the session survive `docker compose restart` and `up --force-recreate` on the volume.
 
 ## How to…
 
@@ -66,8 +64,7 @@ All of them are in [`decisions.md`](decisions.md). The ones most likely to matte
 
 ## Deviations from the prompt
 
-- The Docker image build was not run (see above). Everything else in phases 1 to 6 is implemented
-  and tested.
+- None in functionality; phases 1 to 6 are implemented and tested.
 - The Playwright version is pinned to the one whose browser was already on this machine (D-60).
 
 ## Known limitations
