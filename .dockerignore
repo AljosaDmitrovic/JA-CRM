@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/node_modules/
+web/dist/
+web/.angular/
+e2e/
+tests/
+data/
+docs/
+.git/
+.env
+*.db

@@ -1,0 +1,31 @@
+# VPS overlay: Caddy terminates HTTPS (automatic Let's Encrypt) and is the only public port.
+#   docker compose -f compose.yaml -f compose.vps.yaml up -d --build
+# Needs JACRM_DOMAIN in .env and a DNS A/AAAA record pointing at the server.
+services:
+  app:
+    ports: !reset []
+    expose:
+      - "8080"
+    environment:
+      Auth__SecureCookie: "true"
+      App__TrustForwardedHeaders: "true"
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      JACRM_DOMAIN: ${JACRM_DOMAIN:?Set JACRM_DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

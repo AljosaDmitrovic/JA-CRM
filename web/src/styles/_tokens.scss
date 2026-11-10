@@ -1,0 +1,129 @@
+// Design tokens. Components use only these variables, never raw colours, so the two themes
+// are just two token sets. Status colours carry meaning (phase), not decoration.
+
+:root {
+  color-scheme: light;
+
+  // Neutrals
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f5;
+  --surface-active: #ececee;
+  --surface-sunken: #f7f7f8;
+  --border: #e7e7ea;
+  --border-strong: #d4d4d8;
+  --text: #18181b;
+  --text-muted: #5f5f69;
+  --text-subtle: #75757f;
+  --text-on-accent: #ffffff;
+
+  // Accent (used sparingly: primary action, focus, selection)
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef0ff;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px rgb(79 70 229 / 0.55);
+
+  // Feedback
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+  --warning: #b45309;
+  --warning-soft: #fdf4e3;
+  --success: #15803d;
+  --success-soft: #e8f6ed;
+
+  // Status phases
+  --phase-pipeline: #8b8b94;
+  --phase-applied: #2563eb;
+  --phase-interviewing: #d97706;
+  --phase-offer: #16a34a;
+  --phase-rejected: #dc2626;
+  --phase-closed: #a1a1aa;
+
+  // Elevation (overlays only)
+  --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.18), 0 2px 6px rgb(0 0 0 / 0.06);
+  --shadow-drag: 0 10px 24px -6px rgb(0 0 0 / 0.22);
+  --backdrop: rgb(15 15 20 / 0.32);
+
+  // Typography
+  --font: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --text-xs: 11.5px;
+  --text-sm: 12.5px;
+  --text-base: 13.5px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+
+  // Spacing (4px grid)
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+
+  // Shape
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  // Layout
+  --sidebar-width: 224px;
+  --content-max: 1200px;
+  --control-height: 32px;
+  --transition: 120ms ease;
+}
+
+@mixin dark-tokens {
+  color-scheme: dark;
+
+  --bg: #0e0e10;
+  --bg-subtle: #121214;
+  --surface: #161619;
+  --surface-hover: #1e1e22;
+  --surface-active: #26262b;
+  --surface-sunken: #121215;
+  --border: #25252a;
+  --border-strong: #34343b;
+  --text: #ececef;
+  --text-muted: #a1a1ab;
+  --text-subtle: #8a8a95;
+  --text-on-accent: #ffffff;
+
+  --accent: #6d68f0;
+  --accent-hover: #807bf5;
+  --accent-soft: #1d1c35;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px rgb(129 124 245 / 0.65);
+
+  --danger: #f87171;
+  --danger-soft: #3a1717;
+  --warning: #fbbf24;
+  --warning-soft: #33270f;
+  --success: #4ade80;
+  --success-soft: #11291a;
+
+  --phase-pipeline: #8b8b95;
+  --phase-applied: #60a5fa;
+  --phase-interviewing: #f59e0b;
+  --phase-offer: #4ade80;
+  --phase-rejected: #f87171;
+  --phase-closed: #6b6b75;
+
+  --shadow-overlay: 0 16px 40px -8px rgb(0 0 0 / 0.6), 0 0 0 1px var(--border);
+  --shadow-drag: 0 12px 28px -6px rgb(0 0 0 / 0.6);
+  --backdrop: rgb(0 0 0 / 0.55);
+}
+
+:root[data-theme='dark'] {
+  @include dark-tokens;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-tokens;
+  }
+}

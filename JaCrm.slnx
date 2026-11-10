@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/JaCrm.Api/JaCrm.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/JaCrm.UnitTests/JaCrm.UnitTests.csproj" />
+    <Project Path="tests/JaCrm.IntegrationTests/JaCrm.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

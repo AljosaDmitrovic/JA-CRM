@@ -1,0 +1,66 @@
+<div class="palette" role="dialog" aria-label="Command palette">
+  <div class="input-row">
+    <app-icon [name]="searching() ? 'loader' : 'search'" />
+    <input
+      type="text"
+      role="combobox"
+      aria-controls="palette-list"
+      aria-expanded="true"
+      aria-autocomplete="list"
+      [attr.aria-activedescendant]="activeId() ? 'palette-' + activeId() : null"
+      placeholder="Search companies, vacancies, applications, or run a command…"
+      autocomplete="off"
+      spellcheck="false"
+      [value]="query()"
+      (input)="onInput($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+    />
+    <kbd>Esc</kbd>
+  </div>
+
+  <div class="list" id="palette-list" role="listbox" #list aria-label="Results">
+    @for (group of groups(); track group.name) {
+      <div class="group" role="group" [attr.aria-label]="group.name">
+        <div class="group-label" aria-hidden="true">{{ group.name }}</div>
+        @for (entry of group.items; track entry.item.id) {
+          <div
+            class="option"
+            role="option"
+            [id]="'palette-' + entry.item.id"
+            [attr.data-id]="entry.item.id"
+            [attr.aria-selected]="entry.index === activeIndex()"
+            [class.active]="entry.index === activeIndex()"
+            (mousemove)="activeIndex.set(entry.index)"
+            (click)="run(entry.item)"
+          >
+            <app-icon [name]="entry.item.icon" />
+            <span class="label truncate">{{ entry.item.label }}</span>
+            @if (entry.item.detail) {
+              <span class="detail truncate">{{ entry.item.detail }}</span>
+            }
+            @if (entry.item.keys) {
+              <span class="keys">
+                @for (key of keys(entry.item.keys); track $index) {
+                  <kbd>{{ key }}</kbd>
+                }
+              </span>
+            }
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="empty">
+        @if (searching()) {
+          Searching…
+        } @else {
+          No results for “{{ query() }}”.
+        }
+      </div>
+    }
+  </div>
+
+  <footer>
+    <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
+    <span><kbd>↵</kbd> to open</span>
+  </footer>
+</div>

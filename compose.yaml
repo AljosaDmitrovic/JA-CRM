@@ -1,0 +1,21 @@
+# Local use: `docker compose up -d --build`, then open http://localhost:8080
+# Settings come from .env (copy .env.example). Data lives in the `jacrm-data` volume.
+services:
+  app:
+    build: .
+    image: jacrm:latest
+    restart: unless-stopped
+    ports:
+      - "${JACRM_PORT:-8080}:8080"
+    environment:
+      # Empty until generated: the app then refuses to start and explains how to create it, while
+      # `docker compose run --rm app hash-password` still works.
+      Auth__PasswordHash: ${JACRM_PASSWORD_HASH:-}
+      Auth__SecureCookie: ${JACRM_SECURE_COOKIE:-false}
+      App__TimeZone: ${JACRM_TIME_ZONE:-Europe/Belgrade}
+      App__TrustForwardedHeaders: ${JACRM_TRUST_FORWARDED_HEADERS:-false}
+    volumes:
+      - jacrm-data:/data
+
+volumes:
+  jacrm-data:

@@ -126,3 +126,6 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
 - **D-43 · A web app manifest (name, icons, theme colour) is included so the app can be added to the
   phone's home screen. No service worker / offline mode.** — Cheap, improves daily phone use;
   offline sync would be out of scope.
+- **D-44 · Local (non-Docker) data lives in `src/JaCrm.Api/App_Data/`; Docker uses `/data`.** — A
+  folder named `data` would be the same directory as the `Data/` source folder on case-insensitive
+  file systems (macOS), mixing the database into the sources and the `.gitignore`.

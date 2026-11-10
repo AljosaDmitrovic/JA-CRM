@@ -1,0 +1,27 @@
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+.vs/
+
+# Node / Angular
+node_modules/
+web/dist/
+web/.angular/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.auth/
+
+# Local data and secrets. Not a bare `data/`: on case-insensitive file systems (macOS) that
+# would also ignore the src/JaCrm.Api/Data source folder.
+/data/
+App_Data/
+*.db
+*.db-shm
+*.db-wal
+.env
+
+# OS / editors
+.DS_Store
+.idea/
