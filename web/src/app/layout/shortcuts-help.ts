@@ -1,6 +1,6 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, Injectable, computed, inject } from '@angular/core';
-import { Dialogs } from '../core/dialogs';
+import { DialogMeta, Dialogs } from '../core/dialogs';
 import { ShortcutsService, displayKeys } from '../core/shortcuts.service';
 import { Icon } from '../shared/icon';
 
@@ -9,7 +9,7 @@ import { Icon } from '../shared/icon';
   imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="dialog" role="dialog" aria-labelledby="shortcuts-title">
+    <div class="dialog">
       <header>
         <h2 id="shortcuts-title">Keyboard shortcuts</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close()" aria-label="Close">
@@ -79,6 +79,8 @@ import { Icon } from '../shared/icon';
   `,
 })
 export class ShortcutsHelp {
+  static readonly dialog: DialogMeta = { labelledBy: 'shortcuts-title' };
+
   protected readonly ref = inject(DialogRef);
   private readonly shortcuts = inject(ShortcutsService);
 

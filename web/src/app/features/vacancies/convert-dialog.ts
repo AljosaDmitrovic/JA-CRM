@@ -1,3 +1,4 @@
+import { DialogMeta } from '../../core/dialogs';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -21,7 +22,7 @@ export interface ConvertData {
   imports: [ReactiveFormsModule, Icon, StatusSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form class="dialog" [formGroup]="form" (ngSubmit)="convert()" aria-labelledby="convert-title">
+    <form class="dialog" [formGroup]="form" (ngSubmit)="convert()">
       <header>
         <h2 id="convert-title">Convert to application</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close()" aria-label="Close"><app-icon name="x" /></button>
@@ -62,6 +63,8 @@ export interface ConvertData {
   `,
 })
 export class ConvertDialog {
+  static readonly dialog: DialogMeta = { labelledBy: 'convert-title' };
+
   protected readonly ref = inject<DialogRef<number>>(DialogRef);
   protected readonly data = inject<ConvertData>(DIALOG_DATA);
   protected readonly meta = inject(MetaService);

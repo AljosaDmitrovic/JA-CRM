@@ -30,7 +30,10 @@ public class AppFactory : WebApplicationFactory<Program>
     /// <summary>10 Nov 2026, 09:00 UTC (10:00 in Belgrade).</summary>
     public static readonly DateTimeOffset Start = new(2026, 11, 10, 9, 0, 0, TimeSpan.Zero);
 
-    public string DataDirectory { get; } = Path.Combine(Path.GetTempPath(), "jacrm-tests", Guid.NewGuid().ToString("N"));
+    public string DataDirectory { get; init; } = Path.Combine(Path.GetTempPath(), "jacrm-tests", Guid.NewGuid().ToString("N"));
+
+    /// <summary>Keep the data folder on dispose (to start another instance on it, like a restart).</summary>
+    public bool KeepData { get; init; }
 
     public FakeTimeProvider Time { get; } = new(Start);
 
@@ -80,6 +83,12 @@ public class AppFactory : WebApplicationFactory<Program>
     {
         await base.DisposeAsync();
         SqliteConnection.ClearAllPools();
+        if (KeepData)
+        {
+            GC.SuppressFinalize(this);
+            return;
+        }
+
         try
         {
             Directory.Delete(DataDirectory, recursive: true);

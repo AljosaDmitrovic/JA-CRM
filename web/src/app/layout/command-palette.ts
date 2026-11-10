@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Dialogs } from '../core/dialogs';
+import { DialogMeta, Dialogs } from '../core/dialogs';
 import { MetaService } from '../core/meta.service';
 import { SearchResults } from '../core/models';
 import { displayKeys } from '../core/shortcuts.service';
@@ -40,6 +40,8 @@ const SEARCH_DEBOUNCE_MS = 120;
   styleUrl: './command-palette.scss',
 })
 export class CommandPalette {
+  static readonly dialog: DialogMeta = { label: 'Command palette' };
+
   private readonly ref = inject(DialogRef);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);

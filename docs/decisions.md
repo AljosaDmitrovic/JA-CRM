@@ -171,3 +171,18 @@ approval. Newest entries go at the bottom of their section. Format: **what** —
   — A swipe must scroll the board sideways rather than pick up a card; key hints are noise on a phone.
 - **D-58 · The board always shows active applications; the archived filter and paging live in the
   table view.** — The spec hides archived applications from the board; the table reaches them.
+
+## Testing
+
+- **D-59 · End-to-end tests run against the production Angular build served by the real API**
+  (fresh SQLite file per run, `--webroot` pointing at `web/dist`). — Tests what is shipped, with
+  one origin and the real cookie/CSRF behaviour, not the dev server.
+- **D-60 · Playwright is pinned to 1.63.0,** the version whose Chromium build was already cached
+  on the owner's machine. — Avoids a large browser download on a nearly full disk; bump freely.
+- **D-61 · "Persists after a restart/rebuild" is tested by starting a second app instance on the
+  same data folder:** data, history and the existing session cookie (data-protection keys in the
+  folder) survive. A container restart or rebuild with the `jacrm-data` volume is the same
+  situation; the Docker image build itself is verified separately.
+- **D-62 · Dialogs get their accessible name on the CDK container (role="dialog" / "alertdialog")
+  from a static `dialog` declaration on each dialog component; templates carry no nested
+  dialog roles.** — Found by the E2E tests: the container had no name and two dialog roles were nested.

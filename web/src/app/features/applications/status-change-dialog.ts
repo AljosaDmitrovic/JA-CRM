@@ -1,3 +1,4 @@
+import { DialogMeta } from '../../core/dialogs';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,7 +23,7 @@ export interface StatusChangeData {
   imports: [ReactiveFormsModule, Icon, StatusSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form class="dialog" [formGroup]="form" (ngSubmit)="save()" aria-labelledby="status-title">
+    <form class="dialog" [formGroup]="form" (ngSubmit)="save()">
       <header>
         <h2 id="status-title">Change status</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close()" aria-label="Close"><app-icon name="x" /></button>
@@ -55,6 +56,8 @@ export interface StatusChangeData {
   `,
 })
 export class StatusChangeDialog {
+  static readonly dialog: DialogMeta = { labelledBy: 'status-title' };
+
   protected readonly ref = inject<DialogRef<ApplicationListItem>>(DialogRef);
   protected readonly data = inject<StatusChangeData>(DIALOG_DATA);
   protected readonly meta = inject(MetaService);

@@ -38,6 +38,18 @@ docker compose up -d --build                 # http://localhost:8080, data in vo
 `dotnet run` prints "Using launch settings…" on stdout, so pass `--no-launch-profile` when you
 capture the output of `hash-password`.
 
+```bash
+# End-to-end (Playwright, Chromium). Needs a production build in web/dist first.
+cd web && npx ng build && cd ../e2e && npm test   # starts the API itself on :5181 with a fresh e2e/.data
+```
+
+**Known machine issue (owner's Mac):** the repo lives on `~/Desktop`, which is synced with iCloud
+Drive with "Optimize Mac Storage". When the disk runs low, macOS evicts files (they become
+`dataless` and reading them blocks until iCloud downloads them). Symptoms: `ng build`, `dotnet`,
+`git` or the API hang with no output. Check with `find . -flags +dataless -not -path '*/node_modules/*' | head`.
+Fix: delete and reinstall `node_modules` / `bin` / `obj`, and read the rest back
+(`find . -flags +dataless -type f -print0 | xargs -0 -n1 -P8 cat >/dev/null`).
+
 ## Layout
 
 ```
@@ -119,5 +131,5 @@ List endpoints take filters as query parameters (repeat a key for arrays: `?stat
 | 2 Foundation | Done: solution, schema + migration, auth (cookie, PBKDF2, rate limit, CSRF), design system, shell, command palette, Docker files, test projects |
 | 3 Core features | Done: companies, vacancies, applications (board + table, status history), settings + rates, dashboard, search/filters, export/import (JSON + CSV), with unit + integration tests |
 | 4 UX polish | Done: responsive board/tables, unsaved-change guards, undo on moves, record titles, touch behaviour |
-| 5 QA (incl. Playwright, Docker persistence) | In progress |
+| 5 QA (incl. Playwright, Docker persistence) | Done except the Docker image check: 177 backend + 3 E2E flows green, restart persistence and SQLite integrity tested. Docker build not run (Colima VM disk full; owner decides) |
 | 6 Report + README | Not started |

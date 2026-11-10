@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, Injectable, inject } from '@angular/core';
-import { Dialogs } from '../core/dialogs';
+import { DialogMeta, Dialogs } from '../core/dialogs';
 import { Icon } from './icon';
 
 export interface ConfirmOptions {
@@ -15,7 +15,7 @@ export interface ConfirmOptions {
   imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="dialog" role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="dialog" aria-describedby="confirm-message">
       <header>
         <h2 id="confirm-title">{{ data.title }}</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close(false)" aria-label="Close">
@@ -35,6 +35,8 @@ export interface ConfirmOptions {
   `,
 })
 export class ConfirmDialog {
+  static readonly dialog: DialogMeta = { labelledBy: 'confirm-title', role: 'alertdialog' };
+
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<ConfirmOptions>(DIALOG_DATA);
 }

@@ -1,3 +1,4 @@
+import { DialogMeta } from '../../core/dialogs';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -23,7 +24,7 @@ export interface CompanyFormData {
   imports: [ReactiveFormsModule, Icon, DuplicateWarning, RatingInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form class="dialog" [formGroup]="form" (ngSubmit)="save()" aria-labelledby="company-form-title">
+    <form class="dialog" [formGroup]="form" (ngSubmit)="save()">
       <header>
         <h2 id="company-form-title">{{ editing ? 'Edit company' : 'Add company' }}</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close()" aria-label="Close">
@@ -123,6 +124,8 @@ export interface CompanyFormData {
   `,
 })
 export class CompanyFormDialog implements OnInit {
+  static readonly dialog: DialogMeta = { labelledBy: 'company-form-title' };
+
   protected readonly ref = inject<DialogRef<CompanyDetail>>(DialogRef);
   protected readonly data = inject<CompanyFormData | null>(DIALOG_DATA, { optional: true });
   protected readonly meta = inject(MetaService);

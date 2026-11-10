@@ -1,3 +1,4 @@
+import { DialogMeta } from '../../core/dialogs';
 import { DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,7 +24,7 @@ type Mode = 'new' | 'existing';
   imports: [ReactiveFormsModule, Icon, CompanyField, StatusSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form class="dialog" [formGroup]="form" (ngSubmit)="save()" aria-labelledby="create-app-title">
+    <form class="dialog" [formGroup]="form" (ngSubmit)="save()">
       <header>
         <h2 id="create-app-title">Create application</h2>
         <button type="button" class="btn btn-ghost btn-icon btn-sm" (click)="ref.close()" aria-label="Close"><app-icon name="x" /></button>
@@ -108,6 +109,8 @@ type Mode = 'new' | 'existing';
   `,
 })
 export class CreateApplicationDialog implements OnInit {
+  static readonly dialog: DialogMeta = { labelledBy: 'create-app-title' };
+
   protected readonly ref = inject<DialogRef<number>>(DialogRef);
   protected readonly meta = inject(MetaService);
   private readonly api = inject(ApplicationsApi);
